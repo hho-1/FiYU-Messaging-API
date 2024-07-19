@@ -1,0 +1,29 @@
+{
+  "title": "Blog API",
+  "name": "stockapi",
+  "version": "1.0.0",
+  "description": "Blog Management System",
+  "main": "index.js",
+  "scripts": {
+    "start": "nodemon",
+    "debug": "DEBUG=* node index.js"
+  },
+  "keywords": [],
+  "author": "Clarusway",
+  "license": "ISC Licence",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "crypto": "^1.0.1",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "express-async-errors": "^3.1.1",
+    "fs": "^0.0.1-security",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^7.6.2",
+    "morgan": "^1.10.0",
+    "nodemailer": "^6.9.7",
+    "redoc-express": "^2.1.0",
+    "swagger-autogen": "^2.23.7",
+    "swagger-ui-express": "^5.0.0"
+  }
+}
