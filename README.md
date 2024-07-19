@@ -1,4 +1,4 @@
-# messaging-backend
+# messaging-API
 
 ### Folder/File Structure:
 
