@@ -1,32 +1,31 @@
-"use strict"
+"use strict";
 
-
-const express = require('express')
-const app = express()
+const express = require("express");
+const app = express();
 
 /* ------------------------------------------------------- */
 // Required Modules:
 
 // envVariables to process.env:
-require('dotenv').config()
-const HOST = process.env?.HOST || '127.0.0.1'
-const PORT = process.env?.PORT || 8000
+require("dotenv").config();
+const HOST = process.env?.HOST || "127.0.0.1";
+const PORT = process.env?.PORT || 8000;
 
 // asyncErrors to errorHandler:
-require('express-async-errors')
+require("express-async-errors");
 
 /* ------------------------------------------------------- */
 // Configrations:
 
 // Connect to DB:
-const { dbConnection } = require('./src/configs/dbConnection')
-dbConnection()
+const { dbConnection } = require("./src/configs/dbConnection");
+dbConnection();
 
 /* ------------------------------------------------------- */
 // Middlewares:
 
 // Accept JSON:
-app.use(express.json())
+app.use(express.json());
 
 // CORS Middleware:
 // https://expressjs.com/en/resources/middleware/cors.html
@@ -61,49 +60,49 @@ app.use(express.json())
     app.all('*', cors({ origin: 'allmethods.com' }))
 */
 
-app.use(require('cors')()) // Run with defaults.           Tüm sitelere izin vermek icin deploy öncesi alttaki 3 satiri kapatip burayi actik
+app.use(require("cors")()); // Run with defaults.           Tüm sitelere izin vermek icin deploy öncesi alttaki 3 satiri kapatip burayi actik
 /* app.use(require('cors')({
     origin: ["http://localhost:3000", "http://localhost:4173", "http://localhost:5173"]
 })) */
 
 // Check Authentication:
-app.use(require('./src/middlewares/authentication'))
+app.use(require("./src/middlewares/authentication"));
 
 // Run Logger:
 // app.use(require('./src/middlewares/logger'))     log tutma ücretsiz servislerde olmadigi icin deploy öncesi kapattik
 
 // res.getModelList():
-app.use(require('./src/middlewares/findSearchSortPage'))
+app.use(require("./src/middlewares/findSearchSortPage"));
 
 /* ------------------------------------------------------- */
 // Routes:
 
 // HomePath:
-app.all('/', (req, res) => {
-    res.send({
-        error: false,
-        message: 'Welcome to Message API',
-        documents: {
-            swagger: '/documents/swagger',
-            redoc: '/documents/redoc',
-            json: '/documents/json',
-        },
-        user: req.user
-    })
-})
+app.all("/", (req, res) => {
+  res.send({
+    error: false,
+    message: "Welcome to Message API",
+    documents: {
+      swagger: "/documents/swagger",
+      redoc: "/documents/redoc",
+      json: "/documents/json",
+    },
+    user: req.user,
+  });
+});
 
 // Routes:
-app.use(require('./src/routes'))
+app.use(require("./src/routes"));
 
 /* ------------------------------------------------------- */
 
 // errorHandler:
-app.use(require('./src/middlewares/errorHandler'))
+app.use(require("./src/middlewares/errorHandler"));
 
 // RUN SERVER:
 //app.listen(PORT, HOST, () => console.log(`http://${HOST}:${PORT}`))       deployda HOST parametresine izin verilmedigi icin deploy öncesi HOST parametresini sildik.
-app.listen(PORT, () => console.log(`http://${HOST}:${PORT}`))
+app.listen(PORT, () => console.log(`http://${HOST}:${PORT}`));
 
 /* ------------------------------------------------------- */
-// Syncronization 
+// Syncronization
 //require('./src/helpers/sync')() // !!! It clear database.

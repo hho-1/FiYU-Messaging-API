@@ -8,9 +8,9 @@ const router = require('express').Router()
 
 // auth:
 router.use('/auth', require('./auth'))
-// call user.create for /account/register:
-const { create: userCreate } = require('../controllers/user')
-router.post('/account/register', userCreate)
+// call user.create for /register:
+// const { create: userCreate } = require('../controllers/user')
+// router.post('/register', userCreate)
 
 // user:
 router.use('/users', require('./user'))
@@ -23,8 +23,7 @@ router.use('/groups', require('./group'))
 // messages:
 router.use('/messages', require('./message'))
 router.use('/documents', require('./document'))
-//auth
-router.use('/auth', require('./auth'))
+
 
 
 

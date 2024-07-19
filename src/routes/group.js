@@ -8,7 +8,7 @@ const router = require('express').Router()
 const permissions = require('../middlewares/permissions')
 const group = require('../controllers/group')
 
-// URL: /categories
+// URL: /group
 
 router.route('/')
     .get(group.list)

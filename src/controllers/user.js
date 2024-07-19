@@ -62,13 +62,6 @@ module.exports = {
             token: passwordEncrypt(data._id + Date.now())
         })
 
-        // res.status(201).send({
-        //     error: false,
-        //     token: tokenData.token,
-        //     data
-        // })
-
-        // FOR REACT PROJECT:
         res.status(201).send({
             error: false,
             token: tokenData.token,
@@ -82,7 +75,7 @@ module.exports = {
             #swagger.summary = "Get Single User"
         */
 
-        const filters = (req.user?.is_admin) ? { _id: req.params.id } : { _id: req.user._id }
+        //const filters = (req.user?.is_admin) ? { _id: req.params.id } : { _id: req.user._id }
 
         const data = await User.findOne(filters)
 
@@ -109,9 +102,8 @@ module.exports = {
             }
         */
 
-        const filters =  { _id: req.params.id }
+        //const filters =  { _id: req.params.id }
         
-
         const data = await User.updateOne(filters, req.body, { runValidators: true })
 
         res.status(202).send({
@@ -127,7 +119,7 @@ module.exports = {
             #swagger.summary = "Delete User"
         */
 
-        const filters = { _id: req.params.id } 
+        //const filters = { _id: req.params.id } 
 
         const data = await User.deleteOne(filters)
 

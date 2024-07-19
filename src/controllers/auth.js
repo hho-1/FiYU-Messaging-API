@@ -1,19 +1,17 @@
-"use strict"
-
+"use strict";
 
 // Auth Controller:
 
-const jwt = require('jsonwebtoken')
-const User = require('../models/user')
-const Token = require('../models/token')
-const passwordEncrypt = require('../helpers/passwordEncrypt')
+const User = require("../models/user");
+const Token = require("../models/token");
+const passwordEncrypt = require("../helpers/passwordEncrypt");
 
 module.exports = {
   login: async (req, res) => {
     /*
             #swagger.tags = ["Authentication"]
             #swagger.summary = "Login"
-            #swagger.description = 'Login with username (or email) and password for get simpleToken and JWT'
+            #swagger.description = 'Login with email and password for get simpleToken'
             #swagger.parameters["body"] = {
                 in: "body",
                 required: true,
@@ -24,144 +22,54 @@ module.exports = {
             }
         */
 
-    const { username, email, password } = req.body;
+    const { email, password } = req.body;
 
-    if ((username || email) && password) {
-      const user = await User.findOne({ $or: [{ username }, { email }] });
+    if (email && password) {
+      const user = await User.findOne({ email });
 
-      if (user && user.password == password) {             //passwordEncrypt'i kapattim, deploydan sonra log in yapamiyordum
-        if (user.is_active) {
-          // Use UUID:
-          // const { randomUUID } = require('crypto')
-          // let tokenData = await Token.findOne({ user_id: user._id })
-          // if (!tokenData) tokenData = await Token.create({
-          //     user_id: user._id,
-          //     token: randomUUID()
-          // })
-
-          // TOKEN:
-          let tokenData = await Token.findOne({ user_id: user._id });
-          if (!tokenData)
-            tokenData = await Token.create({
-              user_id: user._id,
-              token: passwordEncrypt(user._id + Date.now()),
-            });
-
-          // JWT:
-        //   const accessToken = jwt.sign(user.toJSON(), process.env.ACCESS_KEY, {
-        //     expiresIn: "30m",
-        //   });
-        //   const refreshToken = jwt.sign(
-        //     { _id: user._id, password: user.password },
-        //     process.env.REFRESH_KEY,
-        //     { expiresIn: "3d" }
-        //   );
-
-          res.send({
-            error: false,
-            key: tokenData.token,
-            user,
+      if (user && user.password == passwordEncrypt(password)) {
+        // TOKEN:
+        let tokenData = await Token.findOne({ userId: user._id });
+        if (!tokenData)
+          tokenData = await Token.create({
+            userId: user._id,
+            token: passwordEncrypt(user._id + Date.now()),
           });
-        } else {
-          res.errorStatusCode = 401;
-          throw new Error("This account is not active.");
-        }
+
+        res.send({
+          error: false,
+          key: tokenData.token,
+          user,
+        });
       } else {
         res.errorStatusCode = 401;
-        throw new Error("Wrong username/email or password.");
+        throw new Error("Wrong email or password.");
       }
     } else {
       res.errorStatusCode = 401;
-      throw new Error("Please enter username/email and password.");
+      throw new Error("Please enter email and password.");
     }
   },
 
   register: async (req, res) => {
     const { email } = req.body;
 
-    
-      await User.create(req.body);
-      
-      const user = await User.findOne({ email });
+    await User.create(req.body);
 
-      let tokenData = await Token.findOne({ user_id: user._id });
-      if (!tokenData)
-        tokenData = await Token.create({
-          user_id: user._id,
-          token: passwordEncrypt(user._id + Date.now()),
-        });
+    const user = await User.findOne({ email });
 
-      res.send({
-        error: false,
-        key: tokenData.token,
-        user
+    let tokenData = await Token.findOne({ userId: user._id });
+    if (!tokenData)
+      tokenData = await Token.create({
+        userId: user._id,
+        token: passwordEncrypt(user._id + Date.now()),
       });
-  },
 
-  refresh: async (req, res) => {
-    /*
-            #swagger.tags = ['Authentication']
-            #swagger.summary = 'JWT: Refresh'
-            #swagger.description = 'Refresh accessToken with refreshToken'
-            #swagger.parameters['body'] = {
-                in: 'body',
-                required: true,
-                schema: {
-                    bearer: {
-                        refresh: '...refreshToken...'
-                    }
-                }
-            }
-        */
-
-    const refreshToken = req.body?.bearer?.refreshToken;
-
-    if (refreshToken) {
-      jwt.verify(
-        refreshToken,
-        process.env.REFRESH_KEY,
-        async function (err, userData) {
-          if (err) {
-            res.errorStatusCode = 401;
-            throw err;
-          } else {
-            const { _id, password } = userData;
-
-            if (_id && password) {
-              const user = await User.findOne({ _id });
-
-              if (user && user.password == password) {
-                if (user.is_active) {
-                  // JWT:
-                  const accessToken = jwt.sign(
-                    user.toJSON(),
-                    process.env.ACCESS_KEY,
-                    { expiresIn: "30m" }
-                  );
-
-                  res.send({
-                    error: false,
-                    bearer: { accessToken },
-                  });
-                } else {
-                  res.errorStatusCode = 401;
-                  throw new Error("This account is not active.");
-                }
-              } else {
-                res.errorStatusCode = 401;
-                throw new Error("Wrong id or password.");
-              }
-            } else {
-              res.errorStatusCode = 401;
-              throw new Error("Please enter id and password.");
-            }
-          }
-        }
-      );
-    } else {
-      res.errorStatusCode = 401;
-      throw new Error("Please enter token.refresh");
-    }
+    res.send({
+      error: false,
+      key: tokenData.token,
+      user,
+    });
   },
 
   logout: async (req, res) => {
@@ -178,16 +86,10 @@ module.exports = {
       result = {};
 
     if (tokenKey) {
-      if (tokenKey[0] == "Token") {
-        // SimpleToken
+      // SimpleToken
 
-        result = await Token.deleteOne({ token: tokenKey[1] });
-        message = "Token deleted. Logout was OK.";
-      } else {
-        // JWT
-
-        message = "No need any process for logout. You must delete JWT tokens.";
-      }
+      result = await Token.deleteOne({ token: tokenKey[1] });
+      message = "Token deleted. Logout was OK.";
     }
 
     res.send({
